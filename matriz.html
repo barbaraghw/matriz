@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Operaciones con Matrices</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+
+        .form-group button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table th, table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+
+        table th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Operaciones con Matrices</h1>
+
+        <div class="form-group">
+            <label for="rows">Número de Filas:</label>
+            <input type="number" id="rows" name="rows" min="1" required>
+        </div>
+
+        <div class="form-group">
+            <label for="cols">Número de Columnas:</label>
+            <input type="number" id="cols" name="cols" min="1" required>
+        </div>
+
+        <div class="form-group">
+            <button id="btnCrearMatriz">Crear Matriz</button>
+        </div>
+
+        <div id="matrizContainer" style="display: none;">
+            <h2>Matriz 1:</h2>
+            <table id="matrizTable1">
+                <!-- Aquí se generará dinámicamente el contenido -->
+            </table>
+        </div>
+
+        <div id="matrizContainer2" style="display: none;">
+            <h2>Matriz 2:</h2>
+            <table id="matrizTable2">
+                <!-- Aquí se generará dinámicamente el contenido -->
+            </table>
+        </div>
+
+        <div id="operaciones">
+            <button id="btnSuma">Suma</button>
+            <button id="btnResta">Resta</button>
+            <button id="btnMultiplicacion">Multiplicación</button>
+            <button id="btnMultiplicarEscalar">Multiplicar por Escalar</button>
+            <button id="btnInversa">Inversa</button>
+            <button id="btnTranspuesta">Transpuesta</button>
+        </div>
+
+        <div id="resultadoContainer" style="display: none;">
+            <h2>Resultado:</h2>
+            <table id="resultadoTable">
+                <!-- Aquí se mostrará el resultado de las operaciones -->
+            </table>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const btnCrearMatriz = document.getElementById('btnCrearMatriz');
+            const matrizContainer1 = document.getElementById('matrizContainer');
+            const matrizTable1 = document.getElementById('matrizTable1');
+            const matrizContainer2 = document.getElementById('matrizContainer2');
+            const matrizTable2 = document.getElementById('matrizTable2');
+            const operacionesContainer = document.getElementById('operaciones');
+            const resultadoContainer = document.getElementById('resultadoContainer');
+            const resultadoTable = document.getElementById('resultadoTable');
+            let matriz1 = [];
+            let matriz2 = [];
+
+            btnCrearMatriz.addEventListener('click', function() {
+                const rows = parseInt(document.getElementById('rows').value);
+                const cols = parseInt(document.getElementById('cols').value);
+
+                if (isNaN(rows) || isNaN(cols) || rows < 1 || cols < 1) {
+                    alert('Ingrese números válidos para filas y columnas (mínimo 1).');
+                    return;
+                }
+
+                // Limpiar tablas anteriores si existen
+                matrizTable1.innerHTML = '';
+                matrizTable2.innerHTML = '';
+
+                // Crear la matriz con inputs para ingresar datos
+                matriz1 = [];
+                matriz2 = [];
+                for (let i = 0; i < rows; i++) {
+                    const row1 = document.createElement('tr');
+                    const row2 = document.createElement('tr');
+                    matriz1[i] = [];
+                    matriz2[i] = [];
+                    for (let j = 0; j < cols; j++) {
+                        const cell1 = document.createElement('td');
+                        const cell2 = document.createElement('td');
+                        const input1 = document.createElement('input');
+                        const input2 = document.createElement('input');
+                        input1.type = 'number';
+                        input1.min = '0';
+                        input1.style.width = '50px';
+                        input2.type = 'number';
+                        input2.min = '0';
+                        input2.style.width = '50px';
+                        cell1.appendChild(input1);
+                        cell2.appendChild(input2);
+                        row1.appendChild(cell1);
+                        row2.appendChild(cell2);
+                        matriz1[i][j] = 0;
+                        matriz2[i][j] = 0;
+                    }
+                    matrizTable1.appendChild(row1);
+                    matrizTable2.appendChild(row2);
+                }
+
+                // Mostrar contenedor de las matrices
+                matrizContainer1.style.display = 'block';
+                matrizContainer2.style.display = 'block';
+                operacionesContainer.style.display = 'block';
+                resultadoContainer.style.display = 'none';
+            });
+
+            function getMatrizFromTable(tableId) {
+                const table = document.getElementById(tableId);
+                const rows = table.rows;
+                const matriz = [];
+                for (let i = 0; i < rows.length; i++) {
+                    matriz[i] = [];
+                    for (let j = 0; j < rows[i].cells.length; j++) {
+                        matriz[i][j] = parseFloat(rows[i].cells[j].querySelector('input').value);
+                    }
+                }
+                return matriz;
+            }
+
+            function sumarMatrices(matrizA, matrizB) {
+                const resultado = [];
+                for (let i = 0; i < matrizA.length; i++) {
+                    resultado[i] = [];
+                    for (let j = 0; j < matrizA[0].length; j++) {
+                        resultado[i][j] = matrizA[i][j] + matrizB[i][j];
+                    }
+                }
+                return resultado;
+            }
+
+            function restarMatrices(matrizA, matrizB) {
+                const resultado = [];
+                for (let i = 0; i < matrizA.length; i++) {
+                    resultado[i] = [];
+                    for (let j = 0; j < matrizA[0].length; j++) {
+                        resultado[i][j] = matrizA[i][j] - matrizB[i][j];
+                    }
+                }
+                return resultado;
+            }
+
+            function multiplicarMatrices(matrizA, matrizB) {
+                const filasA = matrizA.length;
+                const colsA = matrizA[0].length;
+                const colsB = matrizB[0].length;
+                const resultado = new Array(filasA);
+                for (let i = 0; i < filasA; i++) {
+                    resultado[i] = new Array(colsB).fill(0);
+                }
+                for (let i = 0; i < filasA; i++) {
+                    for (let j = 0; j < colsB; j++) {
+                        for (let k = 0; k < colsA; k++) {
+                            resultado[i][j] += matrizA[i][k] * matrizB[k][j];
+                        }
+                    }
+                }
+                return resultado;
+            }
+
+            function multiplicarPorEscalar(matriz, escalar) {
+                const resultado = [];
+                for (let i = 0; i < matriz.length; i++) {
+                    resultado[i] = [];
+                    for (let j = 0; j < matriz[0].length; j++) {
+                        resultado[i][j] = matriz[i][j] * escalar;
+                    }
+                }
+                return resultado;
+            }
+
+            function calcularDeterminante(matriz) {
+                // Implementación básica de cálculo de determinante para una matriz 2x2
+                const det = matriz[0][0] * matriz[1][1] - matriz[0][1] * matriz[1][0];
+                return det;
+            }
+
+            function calcularMatrizAdjunta(matriz) {
+                // Implementación básica de cálculo de adjunta para una matriz 2x2
+                const adjunta = [
+                    [matriz[1][1], -matriz[0][1]],
+                    [-matriz[1][0], matriz[0][0]]
+                ];
+                return adjunta;
+            }
+
+            function calcularMatrizInversa(matriz) {
+                const determinante = calcularDeterminante(matriz);
+                if (determinante === 0) {
+                    alert('La matriz no tiene inversa.');
+                    return matriz; // Retornamos la misma matriz en caso de no tener inversa
+                }
+
+                const adjunta = calcularMatrizAdjunta(matriz);
+                const inversa = multiplicarPorEscalar(adjunta, 1 / determinante);
+                return inversa;
+            }
+
+            function calcularTranspuesta(matriz) {
+                const filas = matriz.length;
+                const columnas = matriz[0].length;
+                const resultado = new Array(columnas);
+                for (let i = 0; i < columnas; i++) {
+                    resultado[i] = new Array(filas);
+                    for (let j = 0; j < filas; j++) {
+                        resultado[i][j] = matriz[j][i];
+                    }
+                }
+                return resultado;
+            }
+
+            document.getElementById('btnSuma').addEventListener('click', function() {
+                const matrizA = getMatrizFromTable('matrizTable1');
+                const matrizB = getMatrizFromTable('matrizTable2');
+                const resultado = sumarMatrices(matrizA, matrizB);
+                mostrarResultado(resultado);
+            });
+
+            document.getElementById('btnResta').addEventListener('click', function() {
+                const matrizA = getMatrizFromTable('matrizTable1');
+                const matrizB = getMatrizFromTable('matrizTable2');
+                const resultado = restarMatrices(matrizA, matrizB);
+                mostrarResultado(resultado);
+            });
+
+            document.getElementById('btnMultiplicacion').addEventListener('click', function() {
+                const matrizA = getMatrizFromTable('matrizTable1');
+                const matrizB = getMatrizFromTable('matrizTable2');
+                const resultado = multiplicarMatrices(matrizA, matrizB);
+                mostrarResultado(resultado);
+            });
+
+            document.getElementById('btnMultiplicarEscalar').addEventListener('click', function() {
+                const escalar = parseFloat(prompt('Ingrese el escalar para la multiplicación:'));
+                if (!isNaN(escalar)) {
+                    const matrizA = getMatrizFromTable('matrizTable1');
+                    const resultado = multiplicarPorEscalar(matrizA, escalar);
+                    mostrarResultado(resultado);
+                } else {
+                    alert('Ingrese un número válido para el escalar.');
+                }
+            });
+
+            document.getElementById('btnInversa').addEventListener('click', function() {
+                const matrizA = getMatrizFromTable('matrizTable1');
+                const resultado = calcularMatrizInversa(matrizA);
+                mostrarResultado(resultado);
+            });
+
+            document.getElementById('btnTranspuesta').addEventListener('click', function() {
+                const matrizA = getMatrizFromTable('matrizTable1');
+                const resultado = calcularTranspuesta(matrizA);
+                mostrarResultado(resultado);
+            });
+
+            function mostrarResultado(matriz) {
+                resultadoTable.innerHTML = '';
+                for (let i = 0; i < matriz.length; i++) {
+                    const row = document.createElement('tr');
+                    for (let j = 0; j < matriz[0].length; j++) {
+                        const cell = document.createElement('td');
+                        cell.textContent = matriz[i][j].toFixed(2); // Mostrar con dos decimales
+                        row.appendChild(cell);
+                    }
+                    resultadoTable.appendChild(row);
+                }
+                resultadoContainer.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>
